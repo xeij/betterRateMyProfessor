@@ -1,8 +1,11 @@
+import logging
 import os
 
 import anthropic
 
 from models import ReviewItem, ReviewSynthesis
+
+logger = logging.getLogger(__name__)
 
 
 async def synthesize_reviews(reviews: list[ReviewItem]) -> ReviewSynthesis | None:
@@ -38,5 +41,6 @@ async def synthesize_reviews(reviews: list[ReviewItem]) -> ReviewSynthesis | Non
         )
         tool_use_block = next(b for b in response.content if b.type == "tool_use")
         return ReviewSynthesis(**tool_use_block.input)
-    except Exception:
+    except Exception as e:
+        logger.error("synthesize_reviews failed: %s: %s", type(e).__name__, e)
         return None
