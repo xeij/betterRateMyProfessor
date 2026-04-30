@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react"
 import { searchProfessors } from "../api.js"
 import ProfessorCard from "../components/ProfessorCard.jsx"
 
-export default function SearchView({ university, onProfessorSelect }) {
+export default function SearchView({ university, onProfessorSelect, onChangeUniversity }) {
   const [query, setQuery] = useState("")
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
@@ -35,7 +35,10 @@ export default function SearchView({ university, onProfessorSelect }) {
       <div className="max-w-xl mx-auto px-4 py-8">
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-gray-900">betterRateMyProfessor</h1>
-          <p className="text-sm text-gray-500">{university.name}</p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-500">{university.name}</p>
+            <button onClick={onChangeUniversity} className="text-xs text-blue-500 hover:underline">Change</button>
+          </div>
         </div>
 
         <input

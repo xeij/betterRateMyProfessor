@@ -15,6 +15,11 @@ export default function App() {
     setUniversity(uni)
   }
 
+  function handleChangeUniversity() {
+    localStorage.removeItem("university")
+    setUniversity(null)
+  }
+
   if (!university) {
     return <UniversityPicker onSelect={handleUniversitySelect} />
   }
@@ -23,5 +28,5 @@ export default function App() {
     return <AnalysisView professor={selectedProfessor} onBack={() => setSelectedProfessor(null)} />
   }
 
-  return <SearchView university={university} onProfessorSelect={setSelectedProfessor} />
+  return <SearchView university={university} onProfessorSelect={setSelectedProfessor} onChangeUniversity={handleChangeUniversity} />
 }
