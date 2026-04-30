@@ -11,7 +11,7 @@ import numpy as np
 logger = logging.getLogger(__name__)
 from sklearn.metrics.pairwise import cosine_similarity
 
-HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+HF_MODEL = "BAAI/bge-small-en-v1.5"
 HF_EMBED_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
 
 AXIS_SEEDS: dict[str, list[str]] = {
