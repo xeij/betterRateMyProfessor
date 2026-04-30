@@ -3,11 +3,15 @@ from __future__ import annotations
 import asyncio
 import os
 
+import logging
+
 import httpx
 import numpy as np
+
+logger = logging.getLogger(__name__)
 from sklearn.metrics.pairwise import cosine_similarity
 
-HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
+HF_API_URL = "https://api-inference.huggingface.co/models/BAAI/bge-small-en-v1.5"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
@@ -52,6 +56,7 @@ async def _embed(client: httpx.AsyncClient, texts: list[str]) -> np.ndarray:
         json={"inputs": texts, "options": {"wait_for_model": True}},
         timeout=60.0,
     )
+    logger.warning("HF status=%s body=%s", resp.status_code, resp.text[:300])
     resp.raise_for_status()
     return _normalize(np.array(resp.json(), dtype=np.float32))
 
