@@ -11,7 +11,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 from sklearn.metrics.pairwise import cosine_similarity
 
-HF_API_URL = "https://api-inference.huggingface.co/models/BAAI/bge-small-en-v1.5"
+HF_EMBED_URL = "https://api-inference.huggingface.co/v1/embeddings"
+HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
@@ -51,14 +52,16 @@ def _normalize(vecs: np.ndarray) -> np.ndarray:
 async def _embed(client: httpx.AsyncClient, texts: list[str]) -> np.ndarray:
     token = os.environ["HF_TOKEN"]
     resp = await client.post(
-        HF_API_URL,
+        HF_EMBED_URL,
         headers={"Authorization": f"Bearer {token}"},
-        json={"inputs": texts, "options": {"wait_for_model": True}},
+        json={"model": HF_MODEL, "input": texts},
         timeout=60.0,
     )
     logger.warning("HF status=%s body=%s", resp.status_code, resp.text[:300])
     resp.raise_for_status()
-    return _normalize(np.array(resp.json(), dtype=np.float32))
+    data = resp.json()
+    vecs = [item["embedding"] for item in sorted(data["data"], key=lambda x: x["index"])]
+    return _normalize(np.array(vecs, dtype=np.float32))
 
 
 async def analyze_reviews(reviews: list[str]) -> dict:
