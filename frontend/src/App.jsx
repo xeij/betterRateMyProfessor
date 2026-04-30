@@ -3,6 +3,8 @@ import UniversityPicker from "./views/UniversityPicker.jsx"
 import SearchView from "./views/SearchView.jsx"
 import AnalysisView from "./views/AnalysisView.jsx"
 
+const GRADIENT_POSITIONS = ["0% 0%", "60% 40%", "100% 100%"]
+
 export default function App() {
   const [university, setUniversity] = useState(null)
   const [selectedProfessor, setSelectedProfessor] = useState(null)
@@ -13,26 +15,34 @@ export default function App() {
     fn()
   }
 
-  if (!university) {
-    return <UniversityPicker key={viewKey.current} onSelect={(uni) => navigate(() => setUniversity(uni))} />
-  }
-
-  if (selectedProfessor) {
-    return (
-      <AnalysisView
-        key={viewKey.current}
-        professor={selectedProfessor}
-        onBack={() => navigate(() => setSelectedProfessor(null))}
-      />
-    )
-  }
+  const viewIndex = !university ? 0 : !selectedProfessor ? 1 : 2
 
   return (
-    <SearchView
-      key={viewKey.current}
-      university={university}
-      onProfessorSelect={(prof) => navigate(() => setSelectedProfessor(prof))}
-      onChangeUniversity={() => navigate(() => { setUniversity(null); setSelectedProfessor(null) })}
-    />
+    <div
+      className="gradient-wrapper min-h-screen"
+      style={{ backgroundPosition: GRADIENT_POSITIONS[viewIndex] }}
+    >
+      {!university && (
+        <UniversityPicker
+          key={viewKey.current}
+          onSelect={(uni) => navigate(() => setUniversity(uni))}
+        />
+      )}
+      {university && !selectedProfessor && (
+        <SearchView
+          key={viewKey.current}
+          university={university}
+          onProfessorSelect={(prof) => navigate(() => setSelectedProfessor(prof))}
+          onChangeUniversity={() => navigate(() => { setUniversity(null); setSelectedProfessor(null) })}
+        />
+      )}
+      {university && selectedProfessor && (
+        <AnalysisView
+          key={viewKey.current}
+          professor={selectedProfessor}
+          onBack={() => navigate(() => setSelectedProfessor(null))}
+        />
+      )}
+    </div>
   )
 }

@@ -213,11 +213,8 @@ export default function AnalysisView({ professor, onBack }) {
   const animatedDiff   = useCountUp(difficulty ?? 0)
 
   return (
-    <div className="gradient-bg-end min-h-screen">
-      <div
-        className="sticky top-0 z-10 border-b"
-        style={{ background: "rgba(67,56,202,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(255,255,255,0.15)" }}
-      >
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-10 glass-bar">
         <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
             onClick={onBack}
@@ -253,9 +250,7 @@ export default function AnalysisView({ professor, onBack }) {
                 <span className="text-2xl font-black leading-none" style={{ color: scoreColor }}>
                   {reviews ? `${scoreSign}${score}` : "—"}
                 </span>
-                <span className="text-[10px] font-semibold uppercase tracking-wide mt-0.5" style={{ color: scoreColor }}>
-                  score
-                </span>
+
               </div>
             </div>
 

@@ -21,7 +21,7 @@ export default function UniversityPicker({ onSelect }) {
   }, [query])
 
   return (
-    <div className="gradient-bg min-h-screen flex items-center justify-center p-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-black text-white tracking-tight mb-2">betterRMP</h1>

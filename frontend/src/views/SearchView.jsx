@@ -45,11 +45,8 @@ export default function SearchView({ university, onProfessorSelect, onChangeUniv
   }, [query, university.id])
 
   return (
-    <div className="gradient-bg-mid min-h-screen">
-      <div
-        className="sticky top-0 z-10 border-b"
-        style={{ background: "rgba(67,56,202,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(255,255,255,0.15)" }}
-      >
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-10 glass-bar">
         <div className="max-w-xl mx-auto px-4 py-3.5 flex items-center justify-between">
           <span className="font-black text-white text-xl tracking-tight">betterRMP</span>
           <div className="flex items-center gap-2">
