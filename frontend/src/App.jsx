@@ -4,19 +4,14 @@ import SearchView from "./views/SearchView.jsx"
 import AnalysisView from "./views/AnalysisView.jsx"
 
 export default function App() {
-  const [university, setUniversity] = useState(() => {
-    const stored = localStorage.getItem("university")
-    return stored ? JSON.parse(stored) : null
-  })
+  const [university, setUniversity] = useState(null)
   const [selectedProfessor, setSelectedProfessor] = useState(null)
 
   function handleUniversitySelect(uni) {
-    localStorage.setItem("university", JSON.stringify(uni))
     setUniversity(uni)
   }
 
   function handleChangeUniversity() {
-    localStorage.removeItem("university")
     setUniversity(null)
   }
 
