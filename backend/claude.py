@@ -32,8 +32,8 @@ async def synthesize_reviews(reviews: list[ReviewItem]) -> ReviewSynthesis | Non
                     "type": "object",
                     "properties": {
                         "vibe": {"type": "string", "description": "2-sentence overall feel of this professor"},
-                        "strengths": {"type": "array", "items": {"type": "string"}, "description": "3-5 bullet strengths"},
-                        "weaknesses": {"type": "array", "items": {"type": "string"}, "description": "2-4 bullet weaknesses"},
+                        "strengths": {"type": "array", "items": {"type": "string"}, "description": "3-5 strengths, each 2-3 words only (e.g. 'Clear explanations', 'Fair grading')"},
+                        "weaknesses": {"type": "array", "items": {"type": "string"}, "description": "2-4 weaknesses, each 2-3 words only (e.g. 'Heavy workload', 'Disorganized lectures')"},
                         "recommendation": {"type": "string", "description": "Who should (and shouldn't) take this professor, 1-2 sentences"},
                     },
                     "required": ["vibe", "strengths", "weaknesses", "recommendation"],

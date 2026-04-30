@@ -145,8 +145,13 @@ function ReviewCard({ review, index }) {
       }}
     >
       <div
-        className="shrink-0 flex items-center justify-center rounded-xl px-3 py-2 text-xs font-mono font-bold whitespace-nowrap self-start mt-0.5"
-        style={{ background: "white", color: styles.emoji, border: `2px solid ${styles.border}` }}
+        className="animate-float shrink-0 flex items-center justify-center rounded-xl px-3 py-2 text-xs font-mono font-bold whitespace-nowrap self-start mt-0.5"
+        style={{
+          background: "white",
+          color: styles.emoji,
+          border: `2px solid ${styles.border}`,
+          "--float-duration": `${2.4 + (index % 5) * 0.35}s`,
+        }}
       >
         {emoji}
       </div>
@@ -161,32 +166,33 @@ function SynthesisCard({ synthesis }) {
       className="rounded-3xl border p-6 animate-fade-in space-y-5"
       style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.2)" }}
     >
-      <span className="text-white font-black text-base">✦ AI Synthesis</span>
+      <span className="text-white font-black text-base">✦ synthesis</span>
 
       <p className="text-white/80 text-sm leading-relaxed italic">{synthesis.vibe}</p>
 
-      <div className="space-y-1.5">
-        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Strengths</p>
-        <ul className="space-y-1.5">
-          {synthesis.strengths.map((s, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-white/80">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#10B981" }} />
-              {s}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className="space-y-1.5">
-        <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Weaknesses</p>
-        <ul className="space-y-1.5">
-          {synthesis.weaknesses.map((w, i) => (
-            <li key={i} className="flex items-start gap-2 text-sm text-white/80">
-              <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#F43F5E" }} />
-              {w}
-            </li>
-          ))}
-        </ul>
+      <div className="flex gap-4">
+        <div className="flex-1 space-y-1.5">
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Strengths</p>
+          <ul className="space-y-1">
+            {synthesis.strengths.map((s, i) => (
+              <li key={i} className="flex items-center gap-1.5 text-xs text-white/80">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#10B981" }} />
+                {s}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <div className="flex-1 space-y-1.5">
+          <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Weaknesses</p>
+          <ul className="space-y-1">
+            {synthesis.weaknesses.map((w, i) => (
+              <li key={i} className="flex items-center gap-1.5 text-xs text-white/80">
+                <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#F43F5E" }} />
+                {w}
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
       <div
@@ -262,7 +268,7 @@ export default function AnalysisView({ professor, onBack }) {
 
   return (
     <div className="min-h-screen">
-      <div className="sticky top-0 z-10 glass-bar">
+      <div>
         <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
             onClick={onBack}
