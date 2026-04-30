@@ -8,6 +8,12 @@ from models import ReviewItem, ReviewSynthesis
 logger = logging.getLogger(__name__)
 
 
+def _to_list(val: object) -> list[str]:
+    if isinstance(val, list):
+        return [str(item).strip() for item in val if str(item).strip()]
+    return [line.lstrip("-•* ").strip() for line in str(val).splitlines() if line.strip()]
+
+
 async def synthesize_reviews(reviews: list[ReviewItem]) -> ReviewSynthesis | None:
     if not reviews:
         return None
@@ -40,7 +46,13 @@ async def synthesize_reviews(reviews: list[ReviewItem]) -> ReviewSynthesis | Non
             }],
         )
         tool_use_block = next(b for b in response.content if b.type == "tool_use")
-        return ReviewSynthesis(**tool_use_block.input)
+        data = tool_use_block.input
+        return ReviewSynthesis(
+            vibe=data["vibe"],
+            strengths=_to_list(data.get("strengths", [])),
+            weaknesses=_to_list(data.get("weaknesses", [])),
+            recommendation=data.get("recommendation", ""),
+        )
     except Exception as e:
         logger.error("synthesize_reviews failed: %s: %s", type(e).__name__, e)
         return None
