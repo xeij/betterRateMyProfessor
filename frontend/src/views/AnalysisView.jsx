@@ -155,33 +155,7 @@ function ReviewCard({ review, index }) {
   )
 }
 
-function SynthesisCard({ synthesis, loading }) {
-  if (loading) {
-    return (
-      <div
-        className="rounded-3xl border p-6 animate-fade-in space-y-4"
-        style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.2)" }}
-      >
-        <div className="flex items-center gap-2 mb-4">
-          <span className="text-white font-black text-base">✦ AI Synthesis</span>
-        </div>
-        <div className="space-y-2">
-          <div className="h-3 animate-shimmer rounded-lg w-full" />
-          <div className="h-3 animate-shimmer rounded-lg w-4/5" />
-        </div>
-        <div className="space-y-1.5 pt-1">
-          {[0, 1, 2].map(i => <div key={i} className="h-3 animate-shimmer rounded-lg w-3/4" />)}
-        </div>
-        <div className="space-y-1.5 pt-1">
-          {[0, 1].map(i => <div key={i} className="h-3 animate-shimmer rounded-lg w-2/3" />)}
-        </div>
-        <div className="h-3 animate-shimmer rounded-lg w-full mt-2" />
-      </div>
-    )
-  }
-
-  if (!synthesis) return null
-
+function SynthesisCard({ synthesis }) {
   return (
     <div
       className="rounded-3xl border p-6 animate-fade-in space-y-5"
@@ -356,8 +330,8 @@ export default function AnalysisView({ professor, onBack }) {
             </div>
           )}
 
-          {!error && (reviewsLoading || synthesis) && (
-            <SynthesisCard synthesis={synthesis} loading={reviewsLoading} />
+          {!error && synthesis && (
+            <SynthesisCard synthesis={synthesis} />
           )}
 
           {!error && (
