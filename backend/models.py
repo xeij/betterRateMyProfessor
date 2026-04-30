@@ -16,13 +16,9 @@ class ProfessorSearchResult(BaseModel):
     difficulty: float | None = None
 
 
-class AxisResult(BaseModel):
-    score: float
-    positive_pct: float
-    negative_pct: float
-    neutral_pct: float
-    review_count: int
-    top_phrases: list[str]
+class ReviewItem(BaseModel):
+    comment: str
+    quality_rating: int
 
 
 class ProfessorAnalysis(BaseModel):
@@ -32,4 +28,4 @@ class ProfessorAnalysis(BaseModel):
     review_count: int
     would_take_again: float | None = None
     difficulty: float | None = None
-    axes: dict[str, AxisResult]
+    reviews: list[ReviewItem]

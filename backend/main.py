@@ -5,9 +5,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
-from cache import get_cached_analysis, write_analysis
-from embeddings import analyze_reviews
-from models import AxisResult, ProfessorAnalysis, ProfessorSearchResult, SchoolResult
+from models import ProfessorAnalysis, ProfessorSearchResult, ReviewItem, SchoolResult
 from rmp import fetch_all_reviews, fetch_professor_info, search_professors, search_schools
 
 load_dotenv()
@@ -41,28 +39,21 @@ async def professor(rmp_id: str):
     except Exception:
         raise HTTPException(status_code=404, detail="Professor not found")
 
-    num_ratings = prof_info.get("numRatings") or 0
-    cached = get_cached_analysis(rmp_id, num_ratings)
-    if cached:
-        cached["overall_rating"] = prof_info.get("avgRating") or 0.0
-        cached["would_take_again"] = prof_info.get("wouldTakeAgainPercent")
-        cached["difficulty"] = prof_info.get("avgDifficulty")
-        return ProfessorAnalysis(**cached)
-
     reviews = await fetch_all_reviews(rmp_id)
-    comments = [r["comment"] for r in reviews if r.get("comment", "").strip()]
-    axes_data = await analyze_reviews(comments)
-
-    write_analysis(rmp_id, prof_info, axes_data)
+    review_items = [
+        ReviewItem(comment=r["comment"], quality_rating=r.get("qualityRating") or 3)
+        for r in reviews
+        if r.get("comment", "").strip()
+    ]
 
     return ProfessorAnalysis(
         name=f"{prof_info['firstName']} {prof_info['lastName']}",
         department=prof_info.get("department") or "",
         overall_rating=prof_info.get("avgRating") or 0.0,
-        review_count=num_ratings,
+        review_count=prof_info.get("numRatings") or 0,
         would_take_again=prof_info.get("wouldTakeAgainPercent"),
         difficulty=prof_info.get("avgDifficulty"),
-        axes={k: AxisResult(**v) for k, v in axes_data.items()},
+        reviews=review_items,
     )
 
 
