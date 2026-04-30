@@ -30,7 +30,7 @@ query SearchTeachers($text: String!, $schoolID: ID!) {
   newSearch {
     teachers(query: { text: $text, schoolID: $schoolID }) {
       edges {
-        node { id firstName lastName department avgRating numRatings wouldTakeAgain avgDifficulty }
+        node { id firstName lastName department avgRating numRatings wouldTakeAgainPercent avgDifficulty }
       }
     }
   }
@@ -40,7 +40,7 @@ query SearchTeachers($text: String!, $schoolID: ID!) {
 _PROFESSOR_INFO = """
 query GetProfessorInfo($id: ID!) {
   node(id: $id) {
-    ... on Teacher { id firstName lastName department avgRating numRatings wouldTakeAgain avgDifficulty }
+    ... on Teacher { id firstName lastName department avgRating numRatings wouldTakeAgainPercent avgDifficulty }
   }
 }
 """
@@ -88,7 +88,7 @@ async def search_professors(name: str, school_id: str) -> list[dict]:
             "department": e["node"]["department"] or "",
             "rating": e["node"]["avgRating"] or 0.0,
             "num_ratings": e["node"].get("numRatings") or 0,
-            "would_take_again": e["node"].get("wouldTakeAgain"),
+            "would_take_again": e["node"].get("wouldTakeAgainPercent"),
             "difficulty": e["node"].get("avgDifficulty"),
         }
         for e in edges
