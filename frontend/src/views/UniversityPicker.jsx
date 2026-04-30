@@ -14,6 +14,7 @@ export default function UniversityPicker({ onSelect }) {
     }
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
+      console.log("Debounce fired, querying:", query)
       setLoading(true)
       try {
         const data = await searchUniversities(query)
