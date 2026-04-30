@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import asyncio
+import os
+
+import httpx
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 
-MODEL_NAME = "all-MiniLM-L6-v2"
+HF_API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
@@ -34,17 +37,26 @@ POSITIVE_POLES = ["excellent", "highly recommend", "great experience"]
 NEGATIVE_POLES = ["terrible", "avoid", "worst class ever"]
 AXIS_THRESHOLD = 0.25
 
-_model: SentenceTransformer | None = None
+
+def _normalize(vecs: np.ndarray) -> np.ndarray:
+    norms = np.linalg.norm(vecs, axis=1, keepdims=True)
+    norms = np.where(norms == 0, 1.0, norms)
+    return vecs / norms
 
 
-def get_model() -> SentenceTransformer:
-    global _model
-    if _model is None:
-        _model = SentenceTransformer(MODEL_NAME)
-    return _model
+async def _embed(client: httpx.AsyncClient, texts: list[str]) -> np.ndarray:
+    token = os.environ["HF_TOKEN"]
+    resp = await client.post(
+        HF_API_URL,
+        headers={"Authorization": f"Bearer {token}"},
+        json={"inputs": texts, "options": {"wait_for_model": True}},
+        timeout=60.0,
+    )
+    resp.raise_for_status()
+    return _normalize(np.array(resp.json(), dtype=np.float32))
 
 
-def analyze_reviews(reviews: list[str]) -> dict:
+async def analyze_reviews(reviews: list[str]) -> dict:
     axis_names = list(AXIS_SEEDS.keys())
     empty = {
         axis: {
@@ -61,23 +73,24 @@ def analyze_reviews(reviews: list[str]) -> dict:
     if not reviews:
         return empty
 
-    model = get_model()
-
     seed_phrases = [p for phrases in AXIS_SEEDS.values() for p in phrases]
-    all_texts = reviews + seed_phrases + POSITIVE_POLES + NEGATIVE_POLES
-    all_embs = model.encode(all_texts, normalize_embeddings=True, batch_size=64)
+    reference_texts = seed_phrases + POSITIVE_POLES + NEGATIVE_POLES
 
-    review_embs = all_embs[: len(reviews)]
+    async with httpx.AsyncClient() as client:
+        review_embs, ref_embs = await asyncio.gather(
+            _embed(client, reviews),
+            _embed(client, reference_texts),
+        )
 
-    offset = len(reviews)
+    offset = 0
     axis_embs: dict[str, np.ndarray] = {}
     for axis, phrases in AXIS_SEEDS.items():
         n = len(phrases)
-        axis_embs[axis] = np.mean(all_embs[offset : offset + n], axis=0, keepdims=True)
+        axis_embs[axis] = np.mean(ref_embs[offset : offset + n], axis=0, keepdims=True)
         offset += n
 
-    pos_emb = np.mean(all_embs[offset : offset + len(POSITIVE_POLES)], axis=0, keepdims=True)
-    neg_emb = np.mean(all_embs[offset + len(POSITIVE_POLES) :], axis=0, keepdims=True)
+    pos_emb = np.mean(ref_embs[offset : offset + len(POSITIVE_POLES)], axis=0, keepdims=True)
+    neg_emb = np.mean(ref_embs[offset + len(POSITIVE_POLES) :], axis=0, keepdims=True)
 
     axis_matrix = np.vstack([axis_embs[a] for a in axis_names])
     sims = cosine_similarity(review_embs, axis_matrix)
