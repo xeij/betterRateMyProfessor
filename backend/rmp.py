@@ -17,8 +17,8 @@ RMP_HEADERS = {
 
 _SEARCH_SCHOOLS = """
 query SearchSchools($text: String!) {
-  search {
-    schools(query: $text) {
+  newSearch {
+    schools(query: { text: $text }) {
       edges { node { id name city state } }
     }
   }
@@ -27,8 +27,8 @@ query SearchSchools($text: String!) {
 
 _SEARCH_PROFESSORS = """
 query SearchTeachers($text: String!, $schoolID: ID!) {
-  search {
-    teachers(query: $text, schoolID: $schoolID) {
+  newSearch {
+    teachers(query: { text: $text, schoolID: $schoolID }) {
       edges {
         node { id firstName lastName department avgRating numRatings }
       }
@@ -74,13 +74,13 @@ async def _gql(query: str, variables: dict) -> dict:
 
 async def search_schools(q: str) -> list[dict]:
     data = await _gql(_SEARCH_SCHOOLS, {"text": q})
-    edges = data["data"]["search"]["schools"]["edges"]
+    edges = data["data"]["newSearch"]["schools"]["edges"]
     return [{"id": e["node"]["id"], "name": e["node"]["name"]} for e in edges]
 
 
 async def search_professors(name: str, school_id: str) -> list[dict]:
     data = await _gql(_SEARCH_PROFESSORS, {"text": name, "schoolID": school_id})
-    edges = data["data"]["search"]["teachers"]["edges"]
+    edges = data["data"]["newSearch"]["teachers"]["edges"]
     return [
         {
             "rmp_id": e["node"]["id"],
