@@ -18,7 +18,8 @@ export default function UniversityPicker({ onSelect }) {
       try {
         const data = await searchUniversities(query)
         setResults(data)
-      } catch {
+      } catch (e) {
+        console.error("Search error:", e)
         setResults([])
       } finally {
         setLoading(false)
