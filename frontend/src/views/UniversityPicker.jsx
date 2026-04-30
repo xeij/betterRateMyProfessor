@@ -21,10 +21,7 @@ export default function UniversityPicker({ onSelect }) {
   }, [query])
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4"
-      style={{ background: "linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)" }}
-    >
+    <div className="gradient-bg min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in-up">
         <div className="text-center mb-8">
           <h1 className="text-5xl font-black text-white tracking-tight mb-2">betterRMP</h1>

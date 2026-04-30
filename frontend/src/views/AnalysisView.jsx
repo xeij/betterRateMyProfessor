@@ -1,6 +1,19 @@
 import { useState, useEffect } from "react"
 import { getProfessorAnalysis } from "../api.js"
 
+const PROFESSOR_EMOJIS = [
+  "( ͡° ͜ʖ ͡°)",
+  "(⌐■_■)",
+  "⊙▂⊙",
+  "(´⊙ω⊙`)",
+  "( ๑‾̀◡‾́)σ",
+]
+
+function getProfessorEmoji(rmpId) {
+  const hash = (rmpId || "").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  return PROFESSOR_EMOJIS[hash % PROFESSOR_EMOJIS.length]
+}
+
 const EMOJIS = {
   1: "( ◺˰◿ )",
   2: "(╥﹏╥)",
@@ -196,7 +209,7 @@ export default function AnalysisView({ professor, onBack }) {
   const animatedDiff   = useCountUp(analysis?.difficulty ?? 0)
 
   return (
-    <div className="min-h-screen" style={{ background: "linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)" }}>
+    <div className="gradient-bg-end min-h-screen">
       <div
         className="sticky top-0 z-10 border-b"
         style={{ background: "rgba(67,56,202,0.85)", backdropFilter: "blur(12px)", borderColor: "rgba(255,255,255,0.15)" }}
@@ -234,12 +247,12 @@ export default function AnalysisView({ professor, onBack }) {
             >
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-tight">{analysis.name} <span className="text-lg font-normal">( ͡° ͜ʖ ͡°)</span></h2>
+                  <h2 className="text-2xl font-black text-white leading-tight">{analysis.name} <span className="text-lg font-normal">{getProfessorEmoji(professor.rmp_id)}</span></h2>
                   <p className="text-sm text-white/60 font-medium mt-1">{analysis.department}</p>
                 </div>
                 <div
                   className="shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl border"
-                  style={{ background: "rgba(255,255,255,0.2)", borderColor: `${scoreColor}90`, boxShadow: `0 0 12px ${scoreColor}40` }}
+                  style={{ background: "white", borderColor: `${scoreColor}`, boxShadow: `0 0 12px ${scoreColor}40` }}
                 >
                   <span className="text-2xl font-black leading-none" style={{ color: scoreColor }}>
                     {scoreSign}{score}
