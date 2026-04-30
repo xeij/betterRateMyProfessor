@@ -62,4 +62,4 @@ async def professor(rmp_id: str):
     )
 
 
-handler = Mangum(app, lifespan="off")
+handler = Mangum(app, lifespan="off", api_gateway_base_path="/better-rmp-backend")
