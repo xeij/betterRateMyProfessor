@@ -1,7 +1,7 @@
 import os
 
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
@@ -21,20 +21,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+router = APIRouter(prefix="/better-rmp-backend")
 
-@app.get("/universities", response_model=list[SchoolResult])
+
+@router.get("/universities", response_model=list[SchoolResult])
 async def universities(q: str):
     results = await search_schools(q)
     return [SchoolResult(**r) for r in results]
 
 
-@app.get("/search", response_model=list[ProfessorSearchResult])
+@router.get("/search", response_model=list[ProfessorSearchResult])
 async def search(name: str, university: str):
     results = await search_professors(name, university)
     return [ProfessorSearchResult(**r) for r in results]
 
 
-@app.get("/professor/{rmp_id}", response_model=ProfessorAnalysis)
+@router.get("/professor/{rmp_id}", response_model=ProfessorAnalysis)
 async def professor(rmp_id: str):
     try:
         prof_info = await fetch_professor_info(rmp_id)
@@ -62,4 +64,6 @@ async def professor(rmp_id: str):
     )
 
 
-handler = Mangum(app, lifespan="off", api_gateway_base_path="/better-rmp-backend")
+app.include_router(router)
+
+handler = Mangum(app, lifespan="off")
