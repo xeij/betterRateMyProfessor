@@ -66,7 +66,10 @@ function DonutChart({ positive, negative, neutral }) {
   return (
     <div className="flex items-center gap-6">
       <div className="relative shrink-0">
-        <svg viewBox="0 0 120 120" width="130" height="130">
+        <svg
+          viewBox="0 0 120 120" width="130" height="130"
+          style={{ opacity: mounted ? 1 : 0, transition: "opacity 0.6s ease" }}
+        >
           {rendered.map((seg, i) =>
             seg.value > 0 ? (
               <circle
@@ -75,17 +78,15 @@ function DonutChart({ positive, negative, neutral }) {
                 fill="none"
                 stroke={seg.color}
                 strokeWidth={sw}
-                strokeLinecap="round"
-                strokeDasharray={`${mounted ? seg.arcLen : 0} ${circ}`}
+                strokeLinecap="butt"
+                strokeDasharray={`${seg.arcLen} ${circ}`}
                 transform={`rotate(${seg.rotation}, ${cx}, ${cy})`}
-                style={{ transition: `stroke-dasharray 0.9s cubic-bezier(0.34,1.2,0.64,1) ${i * 150}ms` }}
               />
             ) : null
           )}
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-xl font-black" style={{ color: centerColor }}>{posPct}%</span>
-          <span className="text-[10px] text-gray-400 font-semibold uppercase tracking-wide">positive</span>
         </div>
       </div>
 
@@ -233,12 +234,12 @@ export default function AnalysisView({ professor, onBack }) {
             >
               <div className="flex items-start justify-between gap-4 mb-5">
                 <div>
-                  <h2 className="text-2xl font-black text-white leading-tight">{analysis.name}</h2>
+                  <h2 className="text-2xl font-black text-white leading-tight">{analysis.name} <span className="text-lg font-normal">( ͡° ͜ʖ ͡°)</span></h2>
                   <p className="text-sm text-white/60 font-medium mt-1">{analysis.department}</p>
                 </div>
                 <div
                   className="shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl border"
-                  style={{ background: `${scoreColor}25`, borderColor: `${scoreColor}50` }}
+                  style={{ background: "rgba(255,255,255,0.2)", borderColor: `${scoreColor}90`, boxShadow: `0 0 12px ${scoreColor}40` }}
                 >
                   <span className="text-2xl font-black leading-none" style={{ color: scoreColor }}>
                     {scoreSign}{score}
