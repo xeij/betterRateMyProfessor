@@ -11,8 +11,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 from sklearn.metrics.pairwise import cosine_similarity
 
-HF_EMBED_URL = "https://api-inference.huggingface.co/v1/embeddings"
 HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+HF_EMBED_URL = f"https://api-inference.huggingface.co/models/{HF_MODEL}/v1/embeddings"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
