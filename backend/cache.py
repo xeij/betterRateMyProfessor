@@ -14,15 +14,19 @@ def get_client() -> Client:
 
 
 def get_cached_analysis(rmp_id: str, current_review_count: int) -> dict | None:
-    client = get_client()
-    result = (
-        client.table("professors")
-        .select("*, analysis_results(*)")
-        .eq("rmp_id", rmp_id)
-        .single()
-        .execute()
-    )
-    prof = result.data
+    try:
+        client = get_client()
+        result = (
+            client.table("professors")
+            .select("*, analysis_results(*)")
+            .eq("rmp_id", rmp_id)
+            .single()
+            .execute()
+        )
+        prof = result.data
+    except Exception:
+        return None
+
     if not prof:
         return None
 
@@ -55,36 +59,39 @@ def get_cached_analysis(rmp_id: str, current_review_count: int) -> dict | None:
 
 
 def write_analysis(rmp_id: str, prof_info: dict, axes_data: dict) -> None:
-    client = get_client()
+    try:
+        client = get_client()
 
-    prof_row = {
-        "rmp_id": rmp_id,
-        "name": f"{prof_info['firstName']} {prof_info['lastName']}",
-        "university": "",
-        "department": prof_info.get("department") or "",
-        "overall_rating": prof_info.get("avgRating"),
-        "total_review_count": prof_info.get("numRatings"),
-        "analyzed_at": datetime.now(timezone.utc).isoformat(),
-    }
-
-    upsert_result = (
-        client.table("professors").upsert(prof_row, on_conflict="rmp_id").execute()
-    )
-    professor_id = upsert_result.data[0]["id"]
-
-    client.table("analysis_results").delete().eq("professor_id", professor_id).execute()
-
-    rows = [
-        {
-            "professor_id": professor_id,
-            "axis": axis,
-            "sentiment_score": data["score"],
-            "positive_pct": data["positive_pct"],
-            "negative_pct": data["negative_pct"],
-            "neutral_pct": data["neutral_pct"],
-            "review_count": data["review_count"],
-            "top_phrases": data["top_phrases"],
+        prof_row = {
+            "rmp_id": rmp_id,
+            "name": f"{prof_info['firstName']} {prof_info['lastName']}",
+            "university": "",
+            "department": prof_info.get("department") or "",
+            "overall_rating": prof_info.get("avgRating"),
+            "total_review_count": prof_info.get("numRatings"),
+            "analyzed_at": datetime.now(timezone.utc).isoformat(),
         }
-        for axis, data in axes_data.items()
-    ]
-    client.table("analysis_results").insert(rows).execute()
+
+        upsert_result = (
+            client.table("professors").upsert(prof_row, on_conflict="rmp_id").execute()
+        )
+        professor_id = upsert_result.data[0]["id"]
+
+        client.table("analysis_results").delete().eq("professor_id", professor_id).execute()
+
+        rows = [
+            {
+                "professor_id": professor_id,
+                "axis": axis,
+                "sentiment_score": data["score"],
+                "positive_pct": data["positive_pct"],
+                "negative_pct": data["negative_pct"],
+                "neutral_pct": data["neutral_pct"],
+                "review_count": data["review_count"],
+                "top_phrases": data["top_phrases"],
+            }
+            for axis, data in axes_data.items()
+        ]
+        client.table("analysis_results").insert(rows).execute()
+    except Exception:
+        pass
