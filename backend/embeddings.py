@@ -7,7 +7,7 @@ import httpx
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 
-HF_API_URL = "https://api-inference.huggingface.co/models/sentence-transformers/all-MiniLM-L6-v2"
+HF_API_URL = "https://api-inference.huggingface.co/pipeline/feature-extraction/sentence-transformers/all-MiniLM-L6-v2"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
