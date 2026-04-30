@@ -21,6 +21,13 @@ class ReviewItem(BaseModel):
     quality_rating: int
 
 
+class ReviewSynthesis(BaseModel):
+    vibe: str
+    strengths: list[str]
+    weaknesses: list[str]
+    recommendation: str
+
+
 class ProfessorAnalysis(BaseModel):
     name: str
     department: str
@@ -29,3 +36,4 @@ class ProfessorAnalysis(BaseModel):
     would_take_again: float | None = None
     difficulty: float | None = None
     reviews: list[ReviewItem]
+    synthesis: ReviewSynthesis | None = None

@@ -6,6 +6,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from mangum import Mangum
 
+from claude import synthesize_reviews
 from models import ProfessorAnalysis, ProfessorSearchResult, ReviewItem, SchoolResult
 from rmp import fetch_all_reviews, fetch_professor_info, search_professors, search_schools
 
@@ -48,6 +49,8 @@ async def professor(rmp_id: str):
         if r.get("comment", "").strip()
     ]
 
+    synthesis = await synthesize_reviews(review_items)
+
     return ProfessorAnalysis(
         name=f"{prof_info['firstName']} {prof_info['lastName']}",
         department=prof_info.get("department") or "",
@@ -56,6 +59,7 @@ async def professor(rmp_id: str):
         would_take_again=prof_info.get("wouldTakeAgainPercent"),
         difficulty=prof_info.get("avgDifficulty"),
         reviews=review_items,
+        synthesis=synthesis,
     )
 
 
