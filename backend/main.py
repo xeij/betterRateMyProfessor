@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from dotenv import load_dotenv
@@ -35,11 +36,12 @@ async def search(name: str, university: str):
 @app.get("/professor/{rmp_id}", response_model=ProfessorAnalysis)
 async def professor(rmp_id: str):
     try:
-        prof_info = await fetch_professor_info(rmp_id)
+        prof_info, reviews = await asyncio.gather(
+            fetch_professor_info(rmp_id),
+            fetch_all_reviews(rmp_id),
+        )
     except Exception:
         raise HTTPException(status_code=404, detail="Professor not found")
-
-    reviews = await fetch_all_reviews(rmp_id)
     review_items = [
         ReviewItem(comment=r["comment"], quality_rating=r.get("qualityRating") or 3)
         for r in reviews

@@ -100,14 +100,15 @@ async def fetch_professor_info(rmp_id: str) -> dict:
     return data["data"]["node"]
 
 
-async def fetch_all_reviews(rmp_id: str) -> list[dict]:
+async def fetch_all_reviews(rmp_id: str, max_reviews: int = 100) -> list[dict]:
     reviews = []
     after = None
-    while True:
-        data = await _gql(_RATINGS, {"id": rmp_id, "count": 20, "after": after})
+    while len(reviews) < max_reviews:
+        batch = min(100, max_reviews - len(reviews))
+        data = await _gql(_RATINGS, {"id": rmp_id, "count": batch, "after": after})
         ratings = data["data"]["node"]["ratings"]
         reviews.extend([e["node"] for e in ratings["edges"]])
         if not ratings["pageInfo"]["hasNextPage"]:
             break
         after = ratings["pageInfo"]["endCursor"]
-    return reviews
+    return reviews[:max_reviews]

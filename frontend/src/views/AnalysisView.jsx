@@ -155,17 +155,9 @@ function ReviewCard({ review, index }) {
   )
 }
 
-function Skeleton() {
+function ReviewsSkeleton() {
   return (
-    <div className="animate-fade-in space-y-4">
-      <div className="bg-white/15 backdrop-blur-sm rounded-3xl border border-white/20 p-6">
-        <div className="h-8 animate-shimmer rounded-xl w-1/2 mb-2" />
-        <div className="h-4 animate-shimmer rounded-lg w-1/3 mb-6" />
-        <div className="flex gap-3 mb-6">
-          {[0, 1, 2].map((i) => <div key={i} className="h-16 w-24 animate-shimmer rounded-2xl" />)}
-        </div>
-        <div className="h-32 animate-shimmer rounded-2xl" />
-      </div>
+    <>
       {[0, 1, 2, 3, 4].map((i) => (
         <div
           key={i}
@@ -179,34 +171,46 @@ function Skeleton() {
           </div>
         </div>
       ))}
-    </div>
+    </>
   )
 }
 
 export default function AnalysisView({ professor, onBack }) {
-  const [analysis, setAnalysis] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [reviews, setReviews] = useState(null)
+  const [overrides, setOverrides] = useState({})
+  const [reviewsLoading, setReviewsLoading] = useState(true)
   const [error, setError] = useState(null)
 
   useEffect(() => {
-    setLoading(true)
+    setReviewsLoading(true)
     setError(null)
     getProfessorAnalysis(professor.rmp_id)
-      .then(setAnalysis)
-      .catch(() => setError("Failed to load analysis. Try again."))
-      .finally(() => setLoading(false))
+      .then((data) => {
+        setReviews(data.reviews)
+        setOverrides({
+          would_take_again: data.would_take_again,
+          difficulty: data.difficulty,
+          overall_rating: data.overall_rating,
+        })
+      })
+      .catch(() => setError("Failed to load reviews. Try again."))
+      .finally(() => setReviewsLoading(false))
   }, [professor.rmp_id])
 
-  const positive = analysis?.reviews.filter(r => r.quality_rating >= 4).length ?? 0
-  const negative = analysis?.reviews.filter(r => r.quality_rating <= 2).length ?? 0
-  const neutral  = analysis?.reviews.filter(r => r.quality_rating === 3).length ?? 0
+  const overall_rating   = overrides.overall_rating   ?? professor.rating
+  const would_take_again = overrides.would_take_again ?? professor.would_take_again
+  const difficulty       = overrides.difficulty       ?? professor.difficulty
+
+  const positive = reviews?.filter(r => r.quality_rating >= 4).length ?? 0
+  const negative = reviews?.filter(r => r.quality_rating <= 2).length ?? 0
+  const neutral  = reviews?.filter(r => r.quality_rating === 3).length ?? 0
   const score = positive - negative
   const scoreSign = score > 0 ? "+" : ""
-  const scoreColor = score > 0 ? "#10B981" : score < 0 ? "#F43F5E" : "#94A3B8"
+  const scoreColor = reviews ? (score > 0 ? "#10B981" : score < 0 ? "#F43F5E" : "#94A3B8") : "#94A3B8"
 
-  const animatedRating = useCountUp(analysis?.overall_rating ?? 0)
-  const animatedWTA    = useCountUp(analysis?.would_take_again ?? 0)
-  const animatedDiff   = useCountUp(analysis?.difficulty ?? 0)
+  const animatedRating = useCountUp(overall_rating)
+  const animatedWTA    = useCountUp(would_take_again ?? 0)
+  const animatedDiff   = useCountUp(difficulty ?? 0)
 
   return (
     <div className="gradient-bg-end min-h-screen">
@@ -230,71 +234,77 @@ export default function AnalysisView({ professor, onBack }) {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6">
-        {loading && <Skeleton />}
-
-        {error && (
-          <div className="bg-white/15 backdrop-blur-sm rounded-3xl border border-white/20 p-8 text-center animate-fade-in">
-            <p className="text-white font-semibold mb-2">Something went wrong</p>
-            <p className="text-sm text-white/60">{error}</p>
-          </div>
-        )}
-
-        {analysis && (
-          <div className="animate-fade-in space-y-4">
-            <div
-              className="rounded-3xl border p-6"
-              style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.2)" }}
-            >
-              <div className="flex items-start justify-between gap-4 mb-5">
-                <div>
-                  <h2 className="text-2xl font-black text-white leading-tight">{analysis.name} <span className="text-lg font-normal">{getProfessorEmoji(professor.rmp_id)}</span></h2>
-                  <p className="text-sm text-white/60 font-medium mt-1">{analysis.department}</p>
-                </div>
-                <div
-                  className="shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl border"
-                  style={{ background: "white", borderColor: `${scoreColor}`, boxShadow: `0 0 12px ${scoreColor}40` }}
-                >
-                  <span className="text-2xl font-black leading-none" style={{ color: scoreColor }}>
-                    {scoreSign}{score}
-                  </span>
-                  <span className="text-[10px] font-semibold uppercase tracking-wide mt-0.5" style={{ color: scoreColor }}>
-                    score
-                  </span>
-                </div>
+        <div className="animate-fade-in space-y-4">
+          <div
+            className="rounded-3xl border p-6"
+            style={{ background: "rgba(255,255,255,0.12)", backdropFilter: "blur(16px)", borderColor: "rgba(255,255,255,0.2)" }}
+          >
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h2 className="text-2xl font-black text-white leading-tight">
+                  {professor.name} <span className="text-lg font-normal">{getProfessorEmoji(professor.rmp_id)}</span>
+                </h2>
+                <p className="text-sm text-white/60 font-medium mt-1">{professor.department}</p>
               </div>
-
-              <div className="flex gap-3 flex-wrap mb-6">
-                <StatPill label="Overall" value={animatedRating.toFixed(1)} />
-                <StatPill label="Reviews" value={analysis.review_count} />
-                {analysis.would_take_again != null && (
-                  <StatPill label="Would retake" value={`${Math.round(animatedWTA)}%`} />
-                )}
-                {analysis.difficulty != null && (
-                  <StatPill label="Difficulty" value={animatedDiff.toFixed(1)} />
-                )}
-              </div>
-
               <div
-                className="rounded-2xl p-4 border"
-                style={{ background: "rgba(0,0,0,0.15)", borderColor: "rgba(255,255,255,0.1)" }}
+                className="shrink-0 flex flex-col items-center px-4 py-2.5 rounded-2xl border"
+                style={{ background: "white", borderColor: scoreColor, boxShadow: `0 0 12px ${scoreColor}40` }}
               >
-                <DonutChart positive={positive} negative={negative} neutral={neutral} />
+                <span className="text-2xl font-black leading-none" style={{ color: scoreColor }}>
+                  {reviews ? `${scoreSign}${score}` : "—"}
+                </span>
+                <span className="text-[10px] font-semibold uppercase tracking-wide mt-0.5" style={{ color: scoreColor }}>
+                  score
+                </span>
               </div>
             </div>
 
-            <div className="px-1">
-              <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
-                {analysis.reviews.length} reviews
-              </p>
+            <div className="flex gap-3 flex-wrap mb-6">
+              <StatPill label="Overall" value={animatedRating.toFixed(1)} />
+              <StatPill label="Reviews" value={professor.num_ratings} />
+              {would_take_again != null && (
+                <StatPill label="Would retake" value={`${Math.round(animatedWTA)}%`} />
+              )}
+              {difficulty != null && (
+                <StatPill label="Difficulty" value={animatedDiff.toFixed(1)} />
+              )}
             </div>
 
-            <div className="space-y-3">
-              {analysis.reviews.map((review, i) => (
-                <ReviewCard key={review.comment.slice(0, 20) + i} review={review} index={i} />
-              ))}
+            <div
+              className="rounded-2xl p-4 border"
+              style={{ background: "rgba(0,0,0,0.15)", borderColor: "rgba(255,255,255,0.1)" }}
+            >
+              {reviews
+                ? <DonutChart positive={positive} negative={negative} neutral={neutral} />
+                : <div className="h-32 animate-shimmer rounded-xl" />
+              }
             </div>
           </div>
-        )}
+
+          {error && (
+            <div className="bg-white/10 rounded-2xl border border-white/20 p-4 text-center">
+              <p className="text-white/70 text-sm">{error}</p>
+            </div>
+          )}
+
+          {!error && (
+            <>
+              <div className="px-1">
+                <p className="text-xs font-semibold text-white/50 uppercase tracking-widest">
+                  {reviews ? `${reviews.length} reviews` : "Loading reviews…"}
+                </p>
+              </div>
+              <div className="space-y-3">
+                {reviewsLoading
+                  ? <ReviewsSkeleton />
+                  : reviews?.map((review, i) => (
+                      <ReviewCard key={review.comment.slice(0, 20) + i} review={review} index={i} />
+                    ))
+                }
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </div>
   )
