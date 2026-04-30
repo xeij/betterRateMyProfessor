@@ -1,4 +1,8 @@
+import logging
+
 import httpx
+
+logger = logging.getLogger(__name__)
 
 RMP_URL = "https://www.ratemyprofessors.com/graphql"
 RMP_HEADERS = {
@@ -63,6 +67,7 @@ async def _gql(query: str, variables: dict) -> dict:
             headers=RMP_HEADERS,
             timeout=15.0,
         )
+        logger.warning("RMP status=%s body=%s", resp.status_code, resp.text[:500])
         resp.raise_for_status()
         return resp.json()
 
