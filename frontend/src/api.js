@@ -1,5 +1,4 @@
 const BASE = import.meta.env.VITE_API_URL
-console.log("API BASE:", BASE)
 
 export async function searchUniversities(q) {
   const res = await fetch(`${BASE}/universities?q=${encodeURIComponent(q)}`)

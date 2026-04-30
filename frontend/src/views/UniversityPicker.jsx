@@ -8,57 +8,63 @@ export default function UniversityPicker({ onSelect }) {
   const debounceRef = useRef(null)
 
   useEffect(() => {
-    if (query.length < 2) {
-      setResults([])
-      return
-    }
+    if (query.length < 2) { setResults([]); return }
     clearTimeout(debounceRef.current)
     debounceRef.current = setTimeout(async () => {
-      console.log("Debounce fired, querying:", query)
       setLoading(true)
       try {
         const data = await searchUniversities(query)
         setResults(data)
-      } catch (e) {
-        console.error("Search error:", e)
-        setResults([])
-      } finally {
-        setLoading(false)
-      }
+      } catch { setResults([]) }
+      finally { setLoading(false) }
     }, 350)
   }, [query])
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-8 w-full max-w-md">
-        <h1 className="text-2xl font-bold text-gray-900 mb-1">betterRateMyProfessor</h1>
-        <p className="text-sm text-gray-500 mb-6">Select your university to get started.</p>
+    <div
+      className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: "linear-gradient(135deg, #4338CA 0%, #6D28D9 100%)" }}
+    >
+      <div className="w-full max-w-md animate-fade-in-up">
+        <div className="text-center mb-8">
+          <h1 className="text-5xl font-black text-white tracking-tight mb-2">betterRMP</h1>
+          <p className="text-indigo-200 text-sm font-medium">Smarter professor insights, powered by AI</p>
+        </div>
 
-        <input
-          type="text"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for your university..."
-          className="w-full border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          autoFocus
-        />
+        <div className="bg-white rounded-3xl shadow-2xl p-6">
+          <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mb-3">Find your university</p>
 
-        {loading && <p className="text-xs text-gray-400 mt-2">Searching...</p>}
+          <div className="relative">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search for your university..."
+              className="w-full border-2 border-gray-100 rounded-2xl px-4 py-3.5 text-sm focus:outline-none focus:border-indigo-400 transition-all duration-200 bg-gray-50 focus:bg-white"
+              autoFocus
+            />
+            {loading && (
+              <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                <div className="w-4 h-4 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            )}
+          </div>
 
-        {results.length > 0 && (
-          <ul className="mt-2 border border-gray-200 rounded-lg overflow-hidden">
-            {results.map((uni) => (
-              <li key={uni.id}>
-                <button
-                  onClick={() => onSelect({ id: uni.id, name: uni.name })}
-                  className="w-full text-left px-4 py-3 text-sm hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-0"
-                >
-                  {uni.name}
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
+          {results.length > 0 && (
+            <ul className="mt-2 border border-gray-100 rounded-2xl overflow-hidden shadow-sm animate-slide-down">
+              {results.map((uni, i) => (
+                <li key={uni.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 30}ms`, opacity: 0 }}>
+                  <button
+                    onClick={() => onSelect({ id: uni.id, name: uni.name })}
+                    className="w-full text-left px-4 py-3.5 text-sm hover:bg-indigo-50 active:bg-indigo-100 transition-colors border-b border-gray-50 last:border-0 font-medium text-gray-700"
+                  >
+                    {uni.name}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
     </div>
   )

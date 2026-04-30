@@ -45,6 +45,8 @@ async def professor(rmp_id: str):
     cached = get_cached_analysis(rmp_id, num_ratings)
     if cached:
         cached["overall_rating"] = prof_info.get("avgRating") or 0.0
+        cached["would_take_again"] = prof_info.get("wouldTakeAgain")
+        cached["difficulty"] = prof_info.get("avgDifficulty")
         return ProfessorAnalysis(**cached)
 
     reviews = await fetch_all_reviews(rmp_id)
@@ -58,6 +60,8 @@ async def professor(rmp_id: str):
         department=prof_info.get("department") or "",
         overall_rating=prof_info.get("avgRating") or 0.0,
         review_count=num_ratings,
+        would_take_again=prof_info.get("wouldTakeAgain"),
+        difficulty=prof_info.get("avgDifficulty"),
         axes={k: AxisResult(**v) for k, v in axes_data.items()},
     )
 
