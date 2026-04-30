@@ -267,7 +267,7 @@ export default function AnalysisView({ professor, onBack }) {
   const animatedDiff   = useCountUp(difficulty ?? 0)
 
   return (
-    <div className="min-h-screen">
+    <div>
       <div>
         <div className="max-w-2xl mx-auto px-4 py-3.5 flex items-center gap-3">
           <button
