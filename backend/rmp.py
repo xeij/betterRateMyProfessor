@@ -4,6 +4,11 @@ RMP_URL = "https://www.ratemyprofessors.com/graphql"
 RMP_HEADERS = {
     "Authorization": "Basic dGVzdDp0ZXN0",
     "Content-Type": "application/json",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "Referer": "https://www.ratemyprofessors.com/",
+    "Origin": "https://www.ratemyprofessors.com",
+    "Accept": "*/*",
+    "Accept-Language": "en-US,en;q=0.9",
 }
 
 _SEARCH_SCHOOLS = """
