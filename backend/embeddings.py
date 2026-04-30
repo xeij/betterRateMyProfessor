@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from sklearn.metrics.pairwise import cosine_similarity
 
 HF_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
-HF_EMBED_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}/v1/embeddings"
+HF_EMBED_URL = f"https://router.huggingface.co/hf-inference/models/{HF_MODEL}"
 
 AXIS_SEEDS: dict[str, list[str]] = {
     "workload": [
@@ -54,13 +54,12 @@ async def _embed(client: httpx.AsyncClient, texts: list[str]) -> np.ndarray:
     resp = await client.post(
         HF_EMBED_URL,
         headers={"Authorization": f"Bearer {token}"},
-        json={"model": HF_MODEL, "input": texts},
+        json={"inputs": texts},
         timeout=60.0,
     )
     logger.warning("HF status=%s body=%s", resp.status_code, resp.text[:300])
     resp.raise_for_status()
-    data = resp.json()
-    vecs = [item["embedding"] for item in sorted(data["data"], key=lambda x: x["index"])]
+    vecs = resp.json()
     return _normalize(np.array(vecs, dtype=np.float32))
 
 
